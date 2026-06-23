@@ -1,5 +1,9 @@
 #include"indice.h"
 #include"arbol.h"
+
+void grabar_in_orden(tArbolBin * arb, void * param);
+
+
 void ind_crear(t_indice* ind, size_t tam_clave, int (*cmp)(const void*, const void*))
 {
     ind->raiz_arbol=NULL;
@@ -49,8 +53,8 @@ int ind_grabar(const t_indice* ind, const char* path)
     FILE * pj = fopen(path, "wb");
     if(!pj)
         return 0;
-    grabar_in_orden(ind->raiz_arbol, pj);
-    fclose(fp);
+    grabar_in_orden(&ind->raiz_arbol, pj);
+    fclose(pj);
     return 1;
 }
 void ind_vaciar(t_indice* ind)
@@ -71,13 +75,11 @@ void grabar_in_orden(tArbolBin * arb, void * param)
 {
     if(!arb)
         return;
-
-    grabar_in_orden(arb->izq, param);
-    fwrite(arb->info, ind->tam, 1, fp);
-    grabar_in_orden(arb->der, param);
+    grabar_in_orden(&(*arb)->izq , param);
+    fwrite((*arb)->info, (*arb)->tam, 1, (FILE*)param);
+    grabar_in_orden(&(*arb)->der, param);
     return;
 }
-
 
 int ind_cargar(t_indice* ind, const char* path)
 {
@@ -105,7 +107,6 @@ int ind_cargar(t_indice* ind, const char* path)
 int insertar_y_balancear(t_indice * ind ,void * vec, int inicio, int fin)
 {
     void * aux = vec;
-    char * aux_clave, * aux_reg;
     unsigned reg;
     int medio;
     if(inicio > fin)
